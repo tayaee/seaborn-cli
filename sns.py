@@ -234,12 +234,70 @@ def lmplot(data, output, save_data_as, x, y, hue, col, row, height, aspect, ci, 
 @click.option("--x", required=True, help="Column name for the X-axis (Required).")
 @click.option("--y", required=True, help="Column name for the Y-axis (Required).")
 @click.option("--hue", help="Column name for color grouping.")
-def scatterplot(data, output, save_data_as, x, y, hue):
+@click.option("--style", help="Column name for style grouping.")
+@click.option("--size", help="Column name for size grouping.")
+@click.option("--palette", help="Color palette to use.")
+@click.option("--hue-order", help="Order for the levels of the hue variable. Comma-separated.")
+@click.option("--hue-norm", help="Normalization in data units for the hue variable.")
+@click.option("--sizes", help="Min, max, or list of sizes for the size variable. Comma-separated.")
+@click.option("--size-order", help="Order for the levels of the size variable. Comma-separated.")
+@click.option("--size-norm", help="Normalization in data units for the size variable.")
+@click.option("--markers/--no-markers", default=True, help="Show markers for the plot.")
+@click.option("--style-order", help="Order for the levels of the style variable. Comma-separated.")
+@click.option("--alpha", type=float, help="Proportion of the original saturation to draw colors.")
+@click.option(
+    "--legend", type=click.Choice(["auto", "brief", "full", "False"]), default="auto", help="How to draw the legend."
+)
+@click.option("--ax", help="Pre-existing axes for the plot.")
+def scatterplot(
+    data,
+    output,
+    save_data_as,
+    x,
+    y,
+    hue,
+    style,
+    size,
+    palette,
+    hue_order,
+    hue_norm,
+    sizes,
+    size_order,
+    size_norm,
+    markers,
+    style_order,
+    alpha,
+    legend,
+    ax,
+):
     df = load_and_handle_data(data, save_data_as)
+
+    if hue_order:
+        hue_order = hue_order.split(",")
+    if sizes:
+        sizes = [float(s) for s in sizes.split(",")]
+    if size_order:
+        size_order = size_order.split(",")
+    if style_order:
+        style_order = style_order.split(",")
+
     plot_params = {
         "x": x,
         "y": y,
         "hue": hue,
+        "style": style,
+        "size": size,
+        "palette": palette,
+        "hue_order": hue_order,
+        "hue_norm": hue_norm,
+        "sizes": sizes,
+        "size_order": size_order,
+        "size_norm": size_norm,
+        "markers": markers,
+        "style_order": style_order,
+        "alpha": alpha,
+        "legend": legend,
+        "ax": ax,
     }
     plot_params = {k: v for k, v in plot_params.items() if v is not None}
     param_str = ", ".join([f"{k}='{v}'" if isinstance(v, str) else f"{k}={v}" for k, v in plot_params.items()])
@@ -248,6 +306,7 @@ def scatterplot(data, output, save_data_as, x, y, hue):
     plt.figure()
     sns.scatterplot(data=df, **plot_params)
     plt.title(f"Scatter Plot: {y} vs {x}")
+    plt.tight_layout()
     save_or_show_plot(output)
 
 
@@ -890,6 +949,7 @@ def countplot(
     help="Dimension along which the data are sorted / aggregated.",
 )
 @click.option("--sort", type=bool, default=True, help="If True, the data will be sorted by the x and y variables.")
+@click.option("--ci/--no-ci", default=True, help="Whether to draw confidence intervals.")
 @click.option("--err_style", type=click.Choice(["band", "bars"]), default="band", help="Style of error representation.")
 @click.option("--err_kws", help="Additional parameters to control the aesthetics of the error bars.")
 @click.option("--alpha", type=float, help="Proportion of the original saturation to draw colors.")
@@ -899,6 +959,7 @@ def countplot(
     "--legend", type=click.Choice(["auto", "brief", "full", "False"]), default="auto", help="How to draw the legend."
 )
 @click.option("--ax", help="Pre-existing axes for the plot.")
+@click.option("--ci", type=click.Choice([True, False]), default=True)
 def lineplot(
     data,
     output,
@@ -925,6 +986,7 @@ def lineplot(
     seed,
     orient,
     sort,
+    ci,
     err_style,
     err_kws,
     alpha,
@@ -975,6 +1037,7 @@ def lineplot(
         "seed": seed,
         "orient": orient,
         "sort": sort,
+        "ci": ci,
         "err_style": err_style,
         "err_kws": err_kws,
         "alpha": alpha,
