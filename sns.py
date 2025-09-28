@@ -850,6 +850,150 @@ def countplot(
     save_or_show_plot(output)
 
 
+# https://seaborn.pydata.org/generated/seaborn.lineplot.html
+@cli.command()
+@click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
+@click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
+@click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
+@click.option("--x", required=True, help="Column name for the X-axis (Required).")
+@click.option("--y", required=True, help="Column name for the Y-axis (Required).")
+@click.option("--hue", help="Column name for color grouping.")
+@click.option("--size", help="Column name for size grouping.")
+@click.option("--style", help="Column name for style grouping.")
+@click.option("--units", help="Column name for units grouping.")
+@click.option("--weights", help="Data values or column used to compute weighted estimation.")
+@click.option("--palette", help="Color palette to use.")
+@click.option("--hue-order", help="Order for the levels of the hue variable. Comma-separated.")
+@click.option("--hue-norm", help="Normalization in data units for the hue variable.")
+@click.option("--sizes", help="Min, max, or list of sizes for the size variable. Comma-separated.")
+@click.option("--size-order", help="Order for the levels of the size variable. Comma-separated.")
+@click.option("--size-norm", help="Normalization in data units for the size variable.")
+@click.option("--dashes", help="True, False, or list of dash styles for the style variable. Comma-separated.")
+@click.option("--markers", type=bool, default=False, help="Show markers for the plot.")
+@click.option("--style-order", help="Order for the levels of the style variable. Comma-separated.")
+@click.option(
+    "--estimator",
+    type=click.Choice(["mean", "sum", "median"]),
+    default="mean",
+    help="Method for aggregating across multiple observations.",
+)
+@click.option(
+    "--errorbar",
+    help="Name of errorbar method (ci, pi, se, or sd) or a tuple with a method name and a level parameter.",
+)
+@click.option("--n_boot", type=int, default=1000, help="Number of bootstrap samples to use.")
+@click.option("--seed", type=int, help="Seed for the random number generator.")
+@click.option(
+    "--orient",
+    type=click.Choice(["x", "y"]),
+    default="x",
+    help="Dimension along which the data are sorted / aggregated.",
+)
+@click.option("--sort", type=bool, default=True, help="If True, the data will be sorted by the x and y variables.")
+@click.option("--err_style", type=click.Choice(["band", "bars"]), default="band", help="Style of error representation.")
+@click.option("--err_kws", help="Additional parameters to control the aesthetics of the error bars.")
+@click.option("--alpha", type=float, help="Proportion of the original saturation to draw colors.")
+@click.option("--color", help="Single color for the plot elements.")
+@click.option("--linewidth", type=float, help="Width of the lines that frame the plot elements.")
+@click.option(
+    "--legend", type=click.Choice(["auto", "brief", "full", "False"]), default="auto", help="How to draw the legend."
+)
+@click.option("--ax", help="Pre-existing axes for the plot.")
+def lineplot(
+    data,
+    output,
+    save_data_as,
+    x,
+    y,
+    hue,
+    size,
+    style,
+    units,
+    weights,
+    palette,
+    hue_order,
+    hue_norm,
+    sizes,
+    size_order,
+    size_norm,
+    dashes,
+    markers,
+    style_order,
+    estimator,
+    errorbar,
+    n_boot,
+    seed,
+    orient,
+    sort,
+    err_style,
+    err_kws,
+    alpha,
+    color,
+    linewidth,
+    legend,
+    ax,
+):
+    df = load_and_handle_data(data, save_data_as)
+
+    # Convert comma-separated strings to lists if necessary
+    if hue_order:
+        hue_order = hue_order.split(",")
+    if sizes:
+        sizes = [float(s) for s in sizes.split(",")]
+    if size_order:
+        size_order = size_order.split(",")
+    if dashes:
+        if dashes == "True":
+            dashes = True
+        elif dashes == "False":
+            dashes = False
+        else:
+            dashes = dashes.split(",")
+    if style_order:
+        style_order = style_order.split(",")
+
+    plot_params = {
+        "x": x,
+        "y": y,
+        "hue": hue,
+        "size": size,
+        "style": style,
+        "units": units,
+        "weights": weights,
+        "palette": palette,
+        "hue_order": hue_order,
+        "hue_norm": hue_norm,
+        "sizes": sizes,
+        "size_order": size_order,
+        "size_norm": size_norm,
+        "dashes": dashes,
+        "markers": markers,
+        "style_order": style_order,
+        "estimator": estimator,
+        "errorbar": errorbar,
+        "n_boot": n_boot,
+        "seed": seed,
+        "orient": orient,
+        "sort": sort,
+        "err_style": err_style,
+        "err_kws": err_kws,
+        "alpha": alpha,
+        "color": color,
+        "linewidth": linewidth,
+        "legend": legend,
+        "ax": ax,
+    }
+    plot_params = {k: v for k, v in plot_params.items() if v is not None}
+    param_str = ", ".join([f"{k}='{v}'" if isinstance(v, str) else f"{k}={v}" for k, v in plot_params.items()])
+    click.echo(f"sns.lineplot(data=df, {param_str})")
+
+    plt.figure()
+    sns.lineplot(data=df, **plot_params)
+    plt.title(f"Line Plot: {y} vs {x}")
+    plt.tight_layout()
+    save_or_show_plot(output)
+
+
 if __name__ == "__main__":
     # If no arguments are provided, show the help message
     if len(sys.argv) == 1:
