@@ -441,20 +441,76 @@ def catplot(
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
 @click.option("--hue", help="Column name for color grouping.")
+@click.option("--hue-order", help="Order for the levels of the hue variable. Comma-separated.")
+@click.option(
+    "--vars", help="Variables within data to use, otherwise use every column with a numeric datatype. Comma-separated."
+)
+@click.option("--x-vars", help="Variables within data to use for the x-axis. Comma-separated.")
+@click.option("--y-vars", help="Variables within data to use for the y-axis. Comma-separated.")
 @click.option("--kind", type=click.Choice(["scatter", "kde", "hist", "reg"]), default="scatter")
-@click.option("--diag_kind", type=click.Choice(["auto", "hist", "kde", "scatter", "reg"]))
+@click.option(
+    "--diag-kind",
+    type=click.Choice(["auto", "hist", "kde"]),
+    default="auto",
+    help="Kind of plot for the diagonal subplots.",
+)
+@click.option("--markers", help="Marker style or a list of markers. Comma-separated.")
 @click.option("--palette", help="Color palette to use.")
 @click.option("--height", type=float, default=2.5, help="Height (in inches) of each facet.")
 @click.option("--aspect", type=float, default=1, help="Aspect ratio of each facet, so aspect * height gives the width.")
-def pairplot(data, output, save_data_as, hue, kind, diag_kind, palette, height, aspect):
+@click.option(
+    "--corner", type=click.Choice(["True", "False"]), default=False, help="If True, don't plot redundant subplots."
+)
+@click.option(
+    "--dropna",
+    type=click.Choice(["True", "False"]),
+    default=False,
+    help="If True, drop missing values from the data before plotting.",
+)
+def pairplot(
+    data,
+    output,
+    save_data_as,
+    hue,
+    hue_order,
+    vars,
+    x_vars,
+    y_vars,
+    kind,
+    diag_kind,
+    markers,
+    palette,
+    height,
+    aspect,
+    corner,
+    dropna,
+):
     df = load_and_handle_data(data, save_data_as)
+    if hue_order:
+        hue_order = hue_order.split(",")
+    if vars:
+        vars = vars.split(",")
+    if x_vars:
+        x_vars = x_vars.split(",")
+    if y_vars:
+        y_vars = y_vars.split(",")
+    if markers and "," in markers:
+        markers = markers.split(",")
+
     plot_params = {
         "hue": hue,
+        "hue_order": hue_order,
+        "vars": vars,
+        "x_vars": x_vars,
+        "y_vars": y_vars,
         "kind": kind,
         "diag_kind": diag_kind,
+        "markers": markers,
         "palette": palette,
         "height": height,
         "aspect": aspect,
+        "corner": corner,
+        "dropna": dropna,
     }
     plot_params = {k: v for k, v in plot_params.items() if v is not None}
     param_str = ", ".join([f"{k}='{v}'" if isinstance(v, str) else f"{k}={v}" for k, v in plot_params.items()])
