@@ -620,6 +620,127 @@ def displot(
     save_or_show_plot(output)
 
 
+# https://seaborn.pydata.org/generated/seaborn.boxplot.html
+@cli.command()
+@click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
+@click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
+@click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
+@click.option("--x", help="Column name for the X-axis.")
+@click.option("--y", help="Column name for the Y-axis.")
+@click.option("--hue", help="Column name for color grouping.")
+@click.option("--order", help="Order to plot the categorical levels in. Comma-separated")
+@click.option("--hue-order", help="Order for the levels of the hue variable. Comma-separated.")
+@click.option("--orient", type=click.Choice(["v", "h"]), help="Orientation of the plot (vertical or horizontal).")
+@click.option("--color", help="Single color for the plot elements.")
+@click.option("--palette", help="Color palette to use.")
+@click.option("--saturation", type=float, default=1, help="Proportion of the original saturation to draw colors.")
+@click.option("--fill", type=bool, default=True, help="If True, use a solid patch. Otherwise, draw as line art.")
+@click.option(
+    "--dodge",
+    type=bool,
+    default=True,
+    help="When hue mapping is used, whether elements should be shifted along the orient axis to eliminate overlap.",
+)
+@click.option("--width", type=float, default=0.8, help="Width of a full element when not using hue nesting.")
+@click.option(
+    "--gap",
+    type=float,
+    default=0,
+    help="Shrink on the orient axis by this factor to add a gap between dodged elements.",
+)
+@click.option("--fliersize", type=float, default=5, help="Size of the markers used to indicate outlier observations.")
+@click.option("--linewidth", type=float, help="Width of the lines that frame the plot elements.")
+@click.option("--linecolor", help="Color to use for line elements, when `fill` is True.")
+@click.option(
+    "--whis",
+    type=float,
+    default=1.5,
+    help="Proportion of the IQR past the low and high quartiles to extend the whiskers.",
+)
+@click.option("--hue-norm", help="Normalization in data units for the hue variable.")
+@click.option("--log-scale", type=click.Choice(["x", "y"]), help="Set axis scale(s) to log.")
+@click.option(
+    "--native-scale",
+    type=bool,
+    default=False,
+    help="When True, numeric or datetime values on the categorical axis will maintain their original scaling.",
+)
+@click.option("--formatter", help="Function for converting categorical data into strings.")
+@click.option(
+    "--legend", type=click.Choice(["auto", "brief", "full", "False"]), default="auto", help="How to draw the legend."
+)
+@click.option("--ax", help="Pre-existing axes for the plot.")
+def boxplot(
+    data,
+    output,
+    save_data_as,
+    x,
+    y,
+    hue,
+    order,
+    hue_order,
+    orient,
+    color,
+    palette,
+    saturation,
+    width,
+    fill,
+    dodge,
+    gap,
+    fliersize,
+    linewidth,
+    linecolor,
+    whis,
+    hue_norm,
+    log_scale,
+    native_scale,
+    formatter,
+    legend,
+    ax,
+):
+    df = load_and_handle_data(data, save_data_as)
+    # Convert comma-separated strings to lists if necessary
+    if order:
+        order = order.split(",")
+    if hue_order:
+        hue_order = hue_order.split(",")
+
+    plot_params = {
+        "x": x,
+        "y": y,
+        "hue": hue,
+        "order": order,
+        "hue_order": hue_order,
+        "orient": orient,
+        "color": color,
+        "palette": palette,
+        "saturation": saturation,
+        "width": width,
+        "fill": fill,
+        "dodge": dodge,
+        "gap": gap,
+        "fliersize": fliersize,
+        "linewidth": linewidth,
+        "linecolor": linecolor,
+        "whis": whis,
+        "hue_norm": hue_norm,
+        "log_scale": log_scale,
+        "native_scale": native_scale,
+        "formatter": formatter,
+        "legend": legend,
+        "ax": ax,
+    }
+    plot_params = {k: v for k, v in plot_params.items() if v is not None}
+    param_str = ", ".join([f"{k}='{v}'" if isinstance(v, str) else f"{k}={v}" for k, v in plot_params.items()])
+    click.echo(f"sns.boxplot(data=df, {param_str})")
+
+    plt.figure()
+    sns.boxplot(data=df, **plot_params)
+    plt.title(f"Box Plot: {y} by {x}")
+    plt.tight_layout()
+    save_or_show_plot(output)
+
+
 if __name__ == "__main__":
     # If no arguments are provided, show the help message
     if len(sys.argv) == 1:
