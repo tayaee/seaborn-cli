@@ -994,6 +994,131 @@ def lineplot(
     save_or_show_plot(output)
 
 
+# https://seaborn.pydata.org/generated/seaborn.relplot.html
+@cli.command()
+@click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
+@click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
+@click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
+@click.option("--x", required=True, help="Column name for the X-axis (Required).")
+@click.option("--y", required=True, help="Column name for the Y-axis (Required).")
+@click.option("--hue", help="Column name for color grouping.")
+@click.option("--size", help="Column name for size grouping.")
+@click.option("--style", help="Column name for style grouping.")
+@click.option("--row", help="Column name to facet the plot across rows.")
+@click.option("--col", help="Column name to facet the plot across columns.")
+@click.option("--kind", type=click.Choice(["scatter", "line"]), default="scatter")
+@click.option("--height", type=float, default=5, help="Height (in inches) of each facet.")
+@click.option("--aspect", type=float, default=1, help="Aspect ratio of each facet, so aspect * height gives the width.")
+@click.option("--col_wrap", type=int, help="Wrap the column variable at this width.")
+@click.option("--row-order", help="Order for the levels of the row variable. Comma-separated.")
+@click.option("--col-order", help="Order for the levels of the col variable. Comma-separated.")
+@click.option("--palette", help="Color palette to use.")
+@click.option("--hue-order", help="Order for the levels of the hue variable. Comma-separated.")
+@click.option("--hue-norm", help="Normalization in data units for the hue variable.")
+@click.option("--sizes", help="Min, max, or list of sizes for the size variable. Comma-separated.")
+@click.option("--size-order", help="Order for the levels of the size variable. Comma-separated.")
+@click.option("--size-norm", help="Normalization in data units for the size variable.")
+@click.option("--markers", type=bool, default=True, help="Show markers for the plot.")
+@click.option("--dashes", help="True, False, or list of dash styles for the style variable. Comma-separated.")
+@click.option("--style-order", help="Order for the levels of the style variable. Comma-separated.")
+@click.option(
+    "--legend", type=click.Choice(["auto", "brief", "full", "False"]), default="auto", help="How to draw the legend."
+)
+@click.option("--alpha", type=float, help="Proportion of the original saturation to draw colors.")
+@click.option("--color", help="Single color for the plot elements.")
+@click.option("--linewidth", type=float, help="Width of the lines that frame the plot elements.")
+def relplot(
+    data,
+    output,
+    save_data_as,
+    x,
+    y,
+    hue,
+    size,
+    style,
+    row,
+    col,
+    kind,
+    height,
+    aspect,
+    col_wrap,
+    row_order,
+    col_order,
+    palette,
+    hue_order,
+    hue_norm,
+    sizes,
+    size_order,
+    size_norm,
+    markers,
+    dashes,
+    style_order,
+    legend,
+    alpha,
+    color,
+    linewidth,
+):
+    df = load_and_handle_data(data, save_data_as)
+
+    # Convert comma-separated strings to lists if necessary
+    if row_order:
+        row_order = row_order.split(",")
+    if col_order:
+        col_order = col_order.split(",")
+    if hue_order:
+        hue_order = hue_order.split(",")
+    if sizes:
+        sizes = [float(s) for s in sizes.split(",")]
+    if size_order:
+        size_order = size_order.split(",")
+    if dashes:
+        if dashes == "True":
+            dashes = True
+        elif dashes == "False":
+            dashes = False
+        else:
+            dashes = dashes.split(",")
+    if style_order:
+        style_order = style_order.split(",")
+
+    plot_params = {
+        "x": x,
+        "y": y,
+        "hue": hue,
+        "size": size,
+        "style": style,
+        "row": row,
+        "col": col,
+        "kind": kind,
+        "height": height,
+        "aspect": aspect,
+        "col_wrap": col_wrap,
+        "row_order": row_order,
+        "col_order": col_order,
+        "palette": palette,
+        "hue_order": hue_order,
+        "hue_norm": hue_norm,
+        "sizes": sizes,
+        "size_order": size_order,
+        "size_norm": size_norm,
+        "markers": markers,
+        "dashes": dashes,
+        "style_order": style_order,
+        "legend": legend,
+        "alpha": alpha,
+        "color": color,
+        "linewidth": linewidth,
+    }
+    plot_params = {k: v for k, v in plot_params.items() if v is not None}
+    param_str = ", ".join([f"{k}='{v}'" if isinstance(v, str) else f"{k}={v}" for k, v in plot_params.items()])
+    click.echo(f"sns.relplot(data=df, {param_str})")
+
+    g = sns.relplot(data=df, **plot_params)
+    g.fig.suptitle(f"Relational Plot: {y} vs {x}")
+    g.fig.tight_layout()
+    save_or_show_plot(output)
+
+
 if __name__ == "__main__":
     # If no arguments are provided, show the help message
     if len(sys.argv) == 1:
