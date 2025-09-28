@@ -551,16 +551,6 @@ def histplot(
 @click.option("--bins", type=int, help="Number of bins.")
 @click.option("--binwidth", type=float, help="Width of each bin.")
 @click.option("--binrange", type=float, nargs=2, help="Lower and upper bounds of the bins.")
-@click.option("--discrete/--no-discrete", default=False, help="Whether the variable is discrete.")
-@click.option("--cumulative/--no-cumulative", default=False, help="If True, plot the cumulative distribution.")
-@click.option("--stat", type=click.Choice(["count", "frequency", "density", "probability", "percent"]), default="count")
-@click.option("--common-bins/--no-common-bins", default=True, help="If True, use the same bins for all subsets.")
-@click.option("--common-norm/--no-common-norm", default=True, help="If True, normalize across all subsets.")
-@click.option("--multiple", type=click.Choice(["layer", "dodge", "stack", "fill"]), default="layer")
-@click.option("--element", type=click.Choice(["bars", "step", "poly"]), default="bars")
-@click.option("--fill", type=bool, default=True, help="Whether to fill the bars or lines of the histogram.")
-@click.option("--shrink", type=float, default=1, help="Scale the width of the bars relative to the bin width.")
-@click.option("--kde/--no-kde", default=False, help="Whether to plot a kernel density estimate.")
 @click.option("--log_scale", type=click.Choice([True, False, "x", "y"]), help="Set the scale of the axis to log.")
 def displot(
     data,
@@ -585,16 +575,6 @@ def displot(
     bins,
     binwidth,
     binrange,
-    discrete,
-    cumulative,
-    stat,
-    common_bins,
-    common_norm,
-    multiple,
-    element,
-    fill,
-    shrink,
-    kde,
     log_scale,
 ):
     df = load_and_handle_data(data, save_data_as)
@@ -628,16 +608,6 @@ def displot(
         "bins": bins,
         "binwidth": binwidth,
         "binrange": binrange,
-        "discrete": discrete,
-        "cumulative": cumulative,
-        "stat": stat,
-        "common_bins": common_bins,
-        "common_norm": common_norm,
-        "multiple": multiple,
-        "element": element,
-        "fill": fill,
-        "shrink": shrink,
-        "kde": kde,
         "log_scale": log_scale,
     }
     plot_params = {k: v for k, v in plot_params.items() if v is not None}
