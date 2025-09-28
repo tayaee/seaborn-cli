@@ -527,6 +527,129 @@ def histplot(
     save_or_show_plot(output)
 
 
+# https://seaborn.pydata.org/generated/seaborn.displot.html
+@cli.command()
+@click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
+@click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
+@click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
+@click.option("--x", help="Column name for the X-axis.")
+@click.option("--y", help="Column name for the Y-axis.")
+@click.option("--hue", help="Column name for color grouping.")
+@click.option("--row", help="Column name to facet the plot across rows.")
+@click.option("--col", help="Column name to facet the plot across columns.")
+@click.option("--kind", type=click.Choice(["hist", "kde", "ecdf"]), default="hist")
+@click.option("--height", type=float, default=5, help="Height (in inches) of each facet.")
+@click.option("--aspect", type=float, default=1, help="Aspect ratio of each facet, so aspect * height gives the width.")
+@click.option("--col-wrap", type=int, help="Wrap the column variable at this width.")
+@click.option("--row-order", help="Order for the levels of the row variable. Comma-separated.")
+@click.option("--col-order", help="Order for the levels of the col variable. Comma-separated.")
+@click.option("--palette", help="Color palette to use.")
+@click.option("--hue-order", help="Order for the levels of the hue variable. Comma-separated.")
+@click.option("--hue-norm", help="Normalization in data units for the hue variable.")
+@click.option("--color", help="Single color for the plot elements.")
+@click.option("--legend/--no-legend", default=True, help="Whether to draw a legend for the semantic variables.")
+@click.option("--bins", type=int, help="Number of bins.")
+@click.option("--binwidth", type=float, help="Width of each bin.")
+@click.option("--binrange", type=float, nargs=2, help="Lower and upper bounds of the bins.")
+@click.option("--discrete/--no-discrete", default=False, help="Whether the variable is discrete.")
+@click.option("--cumulative/--no-cumulative", default=False, help="If True, plot the cumulative distribution.")
+@click.option("--stat", type=click.Choice(["count", "frequency", "density", "probability", "percent"]), default="count")
+@click.option("--common-bins/--no-common-bins", default=True, help="If True, use the same bins for all subsets.")
+@click.option("--common-norm/--no-common-norm", default=True, help="If True, normalize across all subsets.")
+@click.option("--multiple", type=click.Choice(["layer", "dodge", "stack", "fill"]), default="layer")
+@click.option("--element", type=click.Choice(["bars", "step", "poly"]), default="bars")
+@click.option("--fill", type=bool, default=True, help="Whether to fill the bars or lines of the histogram.")
+@click.option("--shrink", type=float, default=1, help="Scale the width of the bars relative to the bin width.")
+@click.option("--kde/--no-kde", default=False, help="Whether to plot a kernel density estimate.")
+@click.option("--log_scale", type=click.Choice([True, False, "x", "y"]), help="Set the scale of the axis to log.")
+def displot(
+    data,
+    output,
+    save_data_as,
+    x,
+    y,
+    hue,
+    row,
+    col,
+    kind,
+    height,
+    aspect,
+    col_wrap,
+    row_order,
+    col_order,
+    palette,
+    hue_order,
+    hue_norm,
+    color,
+    legend,
+    bins,
+    binwidth,
+    binrange,
+    discrete,
+    cumulative,
+    stat,
+    common_bins,
+    common_norm,
+    multiple,
+    element,
+    fill,
+    shrink,
+    kde,
+    log_scale,
+):
+    df = load_and_handle_data(data, save_data_as)
+    # Convert comma-separated strings to lists if necessary
+    if row_order:
+        row_order = row_order.split(",")
+    if col_order:
+        col_order = col_order.split(",")
+    if hue_order:
+        hue_order = hue_order.split(",")
+    if binrange:
+        binrange = tuple(binrange)
+
+    plot_params = {
+        "x": x,
+        "y": y,
+        "hue": hue,
+        "row": row,
+        "col": col,
+        "kind": kind,
+        "height": height,
+        "aspect": aspect,
+        "col_wrap": col_wrap,
+        "row_order": row_order,
+        "col_order": col_order,
+        "palette": palette,
+        "hue_order": hue_order,
+        "hue_norm": hue_norm,
+        "color": color,
+        "legend": legend,
+        "bins": bins,
+        "binwidth": binwidth,
+        "binrange": binrange,
+        "discrete": discrete,
+        "cumulative": cumulative,
+        "stat": stat,
+        "common_bins": common_bins,
+        "common_norm": common_norm,
+        "multiple": multiple,
+        "element": element,
+        "fill": fill,
+        "shrink": shrink,
+        "kde": kde,
+        "log_scale": log_scale,
+    }
+    plot_params = {k: v for k, v in plot_params.items() if v is not None}
+    param_str = ", ".join([f"{k}='{v}'" if isinstance(v, str) else f"{k}={v}" for k, v in plot_params.items()])
+    click.echo(f"sns.displot(data=df, {param_str})")
+
+    g = sns.displot(data=df, **plot_params)
+    g.fig.suptitle(f"Distribution Plot: {x}")
+    g.fig.tight_layout()
+    save_or_show_plot(output)
+
+
 if __name__ == "__main__":
     # If no arguments are provided, show the help message
     if len(sys.argv) == 1:
