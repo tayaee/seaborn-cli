@@ -1,0 +1,32 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "jointplot penguins",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "sns.py",
+            "console": "integratedTerminal",
+            "args": [
+                "jointplot",
+                "--data=penguins",
+                "--x=bill_length_mm",
+                "--y=bill_depth_mm"
+            ]
+        },
+        {
+            "name": "pairplot Automobile.csv",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "sns.py",
+            "console": "integratedTerminal",
+            "args": [
+                "pairplot",
+                "--data=Automobile.csv"
+            ]
+        }
+    ]
+}
