@@ -90,7 +90,9 @@ def cli():
 
 # https://seaborn.pydata.org/generated/seaborn.violinplot.html
 @cli.command(
-    help="""Examples:
+    help="""https://seaborn.pydata.org/generated/seaborn.violinplot.html
+
+Examples:
 
 python sns.py violinplot --data=titanic --x=age
 
@@ -213,7 +215,11 @@ def violinplot(
 
 
 # https://seaborn.pydata.org/generated/seaborn.jointplot.html
-@cli.command()
+@cli.command(
+    help="""
+https://seaborn.pydata.org/generated/seaborn.jointplot.html
+"""
+)
 @click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
@@ -252,7 +258,7 @@ def jointplot(data, output, save_data_as, x, y, hue, kind, height, ratio, space,
 
 
 # https://seaborn.pydata.org/generated/seaborn.lmplot.html
-@cli.command()
+@cli.command(help="""https://seaborn.pydata.org/generated/seaborn.lmplot.html""")
 @click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
@@ -293,7 +299,7 @@ def lmplot(data, output, save_data_as, x, y, hue, col, row, height, aspect, ci, 
 
 
 # https://seaborn.pydata.org/generated/seaborn.scatterplot.html
-@cli.command()
+@cli.command(help="""https://seaborn.pydata.org/generated/seaborn.scatterplot.html""")
 @click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as")
@@ -378,7 +384,7 @@ def scatterplot(
 
 # https://seaborn.pydata.org/generated/seaborn.stripplot.html
 @cli.command(
-    help="""Create a strip plot. A strip plot is a scatter plot where one variable is categorical.
+    help="""https://seaborn.pydata.org/generated/seaborn.scatterplot.html
 
 Examples:
 
@@ -417,7 +423,7 @@ def stripplot(data, output, save_data_as, x, y, hue, jitter, dodge, orient):
 
 
 # https://seaborn.pydata.org/generated/seaborn.swarmplot.html
-@cli.command()
+@cli.command(help="""https://seaborn.pydata.org/generated/seaborn.swarmplot.html""")
 @click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
@@ -446,7 +452,7 @@ def swarmplot(data, output, save_data_as, x, y, hue, dodge, orient):
 
 
 # https://seaborn.pydata.org/generated/seaborn.catplot.html
-@cli.command()
+@cli.command(help="""https://seaborn.pydata.org/generated/seaborn.catplot.html""")
 @click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save dataset as.")
@@ -511,7 +517,7 @@ def catplot(
 
 
 # https://seaborn.pydata.org/generated/seaborn.pairplot.html
-@cli.command()
+@cli.command(help="""https://seaborn.pydata.org/generated/seaborn.pairplot.html""")
 @click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
@@ -598,7 +604,7 @@ def pairplot(
 
 
 # https://seaborn.pydata.org/generated/seaborn.histplot.html
-@cli.command()
+@cli.command(help="""https://seaborn.pydata.org/generated/seaborn.histplot.html""")
 @click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
@@ -718,7 +724,7 @@ def histplot(
 
 
 # https://seaborn.pydata.org/generated/seaborn.displot.html
-@cli.command()
+@cli.command(help="""https://seaborn.pydata.org/generated/seaborn.displot.html""")
 @click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
@@ -811,7 +817,7 @@ def displot(
 
 
 # https://seaborn.pydata.org/generated/seaborn.boxplot.html
-@cli.command()
+@cli.command(help="""https://seaborn.pydata.org/generated/seaborn.boxplot.html""")
 @click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
@@ -932,7 +938,7 @@ def boxplot(
 
 
 # https://seaborn.pydata.org/generated/seaborn.countplot.html
-@cli.command()
+@cli.command(help="""https://seaborn.pydata.org/generated/seaborn.countplot.html""")
 @click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
@@ -1041,7 +1047,7 @@ def countplot(
 
 
 # https://seaborn.pydata.org/generated/seaborn.lineplot.html
-@cli.command()
+@cli.command(help="""https://seaborn.pydata.org/generated/seaborn.lineplot.html""")
 @click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
@@ -1189,7 +1195,7 @@ def lineplot(
 
 
 # https://seaborn.pydata.org/generated/seaborn.relplot.html
-@cli.command()
+@cli.command(help="""https://seaborn.pydata.org/generated/seaborn.relplot.html""")
 @click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
@@ -1314,7 +1320,7 @@ def relplot(
 
 
 # https://seaborn.pydata.org/generated/seaborn.heatmap.html
-@cli.command()
+@cli.command(help="""https://seaborn.pydata.org/generated/seaborn.heatmap.html""")
 @click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
