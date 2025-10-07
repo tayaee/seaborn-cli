@@ -119,24 +119,31 @@ python sns.py violinplot --data=titanic --x=age --linewidth=1 --linecolor=k
 @click.option("--x", required=True, help="Column name for the X-axis (Required).")
 @click.option("--y", help="Column name for the Y-axis (Required).")
 @click.option("--hue", help="Column name for color grouping.")
-@click.option(
-    "--fill", type=click.Choice(["True", "False", None]), default=None, help="Fill the violins. True by default."
-)
-@click.option(
-    "--split", type=click.Choice(["True", "False", ""]), default="", help="Split violins by hue. False by default."
-)
-@click.option("--inner", type=click.Choice(["box", "quart", "point", "stick", None]), default="box")
-@click.option("--gap", type=float, default=None, help="Gap.")
-@click.option("--density_norm", type=click.Choice(["area", "count", "width", None]), default="count")
+# order
+# hue_order
+@click.option("--orient", type=click.Choice(["v", "h"]), help="Orientation of the plot (vertical or horizontal).")
+# color
 @click.option("--palette", help="Color palette to use.")
-@click.option("--linewidth", type=float, help="Width of the lines that frame the plot elements.")
+# saturation
+@click.option("--fill", type=click.Choice(["True", "False", None]), default=None, help="Fill the violins.")
+@click.option("--inner", type=click.Choice(["box", "quart", "point", "stick", None]), default="box")
+@click.option("--split", type=click.Choice(["True", "False", ""]), default="", help="Split violins by hue.")
 @click.option("--width", type=float, default=0.8, help="Width of a full element when not using hue nesting.")
+# dodge
+@click.option("--gap", type=float, default=None, help="Gap.")
+@click.option("--linewidth", type=float, help="Width of the lines that frame the plot elements.")
+@click.option("--linecolor", type=click.Choice(["auto", "k", None]), default=None, help="Smoothing bandwidth.")
 @click.option("--cut", type=float, default=2, help="Distance to extend the density past extreme datapoints.")
 @click.option("--gridsize", type=int, default=100, help="Number of points in the discrete grid (KDE).")
 @click.option("--bw-method", type=click.Choice(["scott", "silverman"]), default="scott", help="Smoothing bandwidth.")
-@click.option("--linecolor", type=click.Choice(["auto", "k", None]), default=None, help="Smoothing bandwidth.")
 @click.option("--bw-adjust", type=float, default=1, help="Factor that scales the bandwidth.")
-@click.option("--orient", type=click.Choice(["v", "h"]), help="Orientation of the plot (vertical or horizontal).")
+@click.option("--density_norm", type=click.Choice(["area", "count", "width", None]), default="count")
+# common_norm
+# hue_norm
+# formatter
+# log_scale
+# native_scale
+# legend
 def violinplot(
     data,
     output,
@@ -144,20 +151,31 @@ def violinplot(
     x,
     y,
     hue,
-    fill,
-    split,
-    inner,
-    gap,
-    density_norm,
+    # order
+    # hue_order
+    orient,
+    # color
     palette,
-    linewidth,
+    # saturation
+    fill,
+    inner,
+    split,
     width,
+    # dodge
+    gap,
+    linewidth,
+    linecolor,
     cut,
     gridsize,
     bw_method,
-    linecolor,
     bw_adjust,
-    orient,
+    density_norm,
+    # common_norm
+    # hue_norm
+    # formatter
+    # log_scale
+    # native_scale
+    # legend
 ):
     df = load_and_handle_data(data, save_data_as)
     plot_params = {
