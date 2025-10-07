@@ -1,10 +1,15 @@
+import logging
+import logging.config
 import os
 import sys
 
 import click
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
+
+logger = logging.getLogger(__name__)
 
 
 def load_and_handle_data(data_name, save_data_as):
@@ -64,12 +69,15 @@ def save_or_show_plot(output_file):
         except Exception as e:
             raise click.ClickException(f"Error saving plot: {e}")
     else:
-        click.echo("🖥️  --output option not specified. Displaying plot on screen. Close the window to continue.")
+        click.echo("INFO --output option not specified. Displaying plot on screen. Close the window to continue.")
         # Note: plt.show() will pause execution until the plot window is closed
         plt.show()
 
 
-@click.group()
+CONTEXT_SETTINGS = dict(max_content_width=130)
+
+
+@click.group(context_settings=CONTEXT_SETTINGS)
 @click.version_option("0.1")
 @click.help_option("-h", "--help")
 def cli():
@@ -77,61 +85,97 @@ def cli():
 
 
 # https://seaborn.pydata.org/generated/seaborn.violinplot.html
-@cli.command()
+@cli.command(
+    help="""Examples:
+
+python sns.py violinplot --data=titanic --x=age
+
+python sns.py violinplot --data=titanic --x=age --y=class
+
+python sns.py violinplot --data=titanic --x=class --y=age --hue=alive
+
+python sns.py violinplot --data=titanic --x=class --y=age --hue=alive --fill=False
+
+python sns.py violinplot --data=titanic --x=class --y=age --hue=alive --split=True --inner=quart
+
+python sns.py violinplot --data=titanic --x=class --y=age --hue=alive --split=True --gap=0.1 --inner=quart
+
+python sns.py violinplot --data=titanic --x=class --y=age --split=True --inner=quart
+
+python sns.py violinplot --data=titanic --x=age --y=deck --inner=point
+
+python sns.py violinplot --data=titanic --x=age --y=deck --inner=point --density_norm=count
+
+python sns.py violinplot --data=titanic --x=age --y=alive --cut=0 --inner=stick
+
+python sns.py violinplot --data=titanic --x=age --y=alive --bw-adjust=.5 --inner=stick
+
+python sns.py violinplot --data=titanic --x=age --linewidth=1 --linecolor=k
+"""
+)
 @click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save dataset as.")
 @click.option("--x", required=True, help="Column name for the X-axis (Required).")
-@click.option("--y", required=True, help="Column name for the Y-axis (Required).")
+@click.option("--y", help="Column name for the Y-axis (Required).")
 @click.option("--hue", help="Column name for color grouping.")
-@click.option("--split/--no-split", default=False, help="Whether to split violins by the hue variable.")
-@click.option("--inner", type=click.Choice(["box", "quartile", "point", "stick", None]), default="box")
+@click.option(
+    "--fill", type=click.Choice(["True", "False", None]), default=None, help="Fill the violins. True by default."
+)
+@click.option(
+    "--split", type=click.Choice(["True", "False", ""]), default="", help="Split violins by hue. False by default."
+)
+@click.option("--inner", type=click.Choice(["box", "quart", "point", "stick", None]), default="box")
+@click.option("--gap", type=float, default=None, help="Gap.")
+@click.option("--density_norm", type=click.Choice(["area", "count", "width", None]), default="count")
 @click.option("--palette", help="Color palette to use.")
 @click.option("--linewidth", type=float, help="Width of the lines that frame the plot elements.")
 @click.option("--width", type=float, default=0.8, help="Width of a full element when not using hue nesting.")
 @click.option("--cut", type=float, default=2, help="Distance to extend the density past extreme datapoints.")
-@click.option(
-    "--gridsize", type=int, default=100, help="Number of points in the discrete grid used to evaluate the KDE."
-)
-@click.option(
-    "--bw-method",
-    type=click.Choice(["scott", "silverman"]),
-    default="scott",
-    help="Method for determining the smoothing bandwidth.",
-)
+@click.option("--gridsize", type=int, default=100, help="Number of points in the discrete grid (KDE).")
+@click.option("--bw-method", type=click.Choice(["scott", "silverman"]), default="scott", help="Smoothing bandwidth.")
+@click.option("--linecolor", type=click.Choice(["auto", "k", None]), default=None, help="Smoothing bandwidth.")
 @click.option("--bw-adjust", type=float, default=1, help="Factor that scales the bandwidth.")
 @click.option("--orient", type=click.Choice(["v", "h"]), help="Orientation of the plot (vertical or horizontal).")
 def violinplot(
-    input,
+    data,
     output,
     save_data_as,
     x,
     y,
     hue,
+    fill,
     split,
     inner,
+    gap,
+    density_norm,
     palette,
     linewidth,
     width,
     cut,
     gridsize,
     bw_method,
+    linecolor,
     bw_adjust,
     orient,
 ):
-    df = load_and_handle_data(input, save_data_as)
+    df = load_and_handle_data(data, save_data_as)
     plot_params = {
         "x": x,
         "y": y,
         "hue": hue,
-        "split": split,
+        "fill": None if not fill else fill.lower() == "true",
+        "split": None if not split else split.lower() == "true",
         "inner": inner,
+        "gap": gap,
+        "density_norm": density_norm,
         "palette": palette,
         "linewidth": linewidth,
         "width": width,
         "cut": cut,
         "gridsize": gridsize,
         "bw_method": bw_method,
+        "linecolor": None if not linecolor else linecolor,
         "bw_adjust": bw_adjust,
         "orient": orient,
     }
@@ -311,7 +355,16 @@ def scatterplot(
 
 
 # https://seaborn.pydata.org/generated/seaborn.stripplot.html
-@cli.command()
+@cli.command(
+    help="""Create a strip plot. A strip plot is a scatter plot where one variable is categorical.
+
+Examples:
+
+    python sns.py stripplot -d iris --x species --y petal_length
+
+    python sns.py stripplot -d tips --x total_bill --y day --hue time --orient h --jitter 0.2
+"""
+)
 @click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
@@ -1238,7 +1291,128 @@ def relplot(
     save_or_show_plot(output)
 
 
+# https://seaborn.pydata.org/generated/seaborn.heatmap.html
+@cli.command()
+@click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
+@click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
+@click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
+@click.option("--x", help="Column name for the X-axis.")
+@click.option("--y", help="Column name for the Y-axis.")
+@click.option("--values", help="Column name for the values to be aggregated and displayed in the heatmap.")
+@click.option("--aggfunc", help="Function to aggregate the values. Default is 'mean'.")
+@click.option("--cmap", help="Colormap to use for the heatmap.")
+@click.option("--center", type=float, help="The value at which to center the colormap   if diverging.")
+@click.option(
+    "--robust", type=bool, default=False, help="If True, the colormap range is computed with robust quantiles."
+)
+@click.option("--annot", type=bool, default=False, help="If True, write the data value in each cell.")
+@click.option("--fmt", default=".2g", help="String formatting code to use when adding annotations.")
+@click.option("--annot_kws", help="Dictionary of keyword arguments for `ax.text` when annot is True.")
+@click.option("--linewidths", type=float, default=0, help="Width of the lines that will divide each cell.")
+@click.option("--linecolor", default="white", help="Color of the lines that will divide each cell.")
+@click.option("--cbar", type=bool, default=True, help="Whether to draw a colorbar.")
+@click.option("--cbar_kws", help="Dictionary of keyword arguments for `matplotlib.figure.Figure.colorbar`.")
+@click.option(
+    "--square", type=bool, default=False, help="If True, set the Axes aspect to 'equal' so each cell is square."
+)
+@click.option("--mask", type=bool, default=False, help="If True, mask the upper triangle of the heatmap.")
+def heatmap(
+    data,
+    output,
+    save_data_as,
+    x,
+    y,
+    values,
+    aggfunc,
+    cmap,
+    center,
+    robust,
+    annot,
+    fmt,
+    annot_kws,
+    linewidths,
+    linecolor,
+    cbar,
+    cbar_kws,
+    square,
+    mask,
+):
+    df = load_and_handle_data(data, save_data_as)
+
+    if not x or not y:
+        raise ValueError("The --x and --y options are required for the heatmap command.")
+    if not values:
+        raise ValueError("The --values option is required for the heatmap command.")
+
+    if aggfunc:
+        try:
+            aggfunc = eval(aggfunc)
+        except Exception as e:
+            raise ValueError(f"Invalid aggfunc: {e}")
+    else:
+        aggfunc = "mean"
+
+    # Create a pivot table for the heatmap
+    heatmap_data = df.pivot_table(index=y, columns=x, values=values, aggfunc=aggfunc)
+
+    if mask:
+        mask = np.triu(np.ones_like(heatmap_data, dtype=bool))
+    else:
+        mask = None
+
+    plot_params = {
+        "data": heatmap_data,
+        "cmap": cmap,
+        "center": center,
+        "robust": robust,
+        "annot": annot,
+        "fmt": fmt,
+        "annot_kws": annot_kws,
+        "linewidths": linewidths,
+        "linecolor": linecolor,
+        "cbar": cbar,
+        "cbar_kws": cbar_kws,
+        "square": square,
+        "mask": mask,
+    }
+    plot_params = {k: v for k, v in plot_params.items() if v is not None}
+    param_str = ", ".join([f"{k}='{v}'" if isinstance(v, str) else f"{k}={v}" for k, v in plot_params.items()])
+    click.echo(f"sns.heatmap({param_str})")
+
+    plt.figure()
+    sns.heatmap(**plot_params)
+    plt.title(f"Heatmap: {values} by {y} and {x}")
+    plt.tight_layout()
+    save_or_show_plot(output)
+
+
 if __name__ == "__main__":
+    LOGGING_CONFIG = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "standard": {
+                "format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+        },
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+                "formatter": "standard",
+                "level": logging.INFO,
+                "stream": "ext://sys.stdout",
+            },
+        },
+        "loggers": {
+            "": {  # root logger
+                "handlers": ["console"],
+                "level": logging.INFO,
+                "propagate": False,
+            },
+        },
+    }
+    logging.config.dictConfig(LOGGING_CONFIG)
     # If no arguments are provided, show the help message
     if len(sys.argv) == 1:
         sys.argv.append("--help")

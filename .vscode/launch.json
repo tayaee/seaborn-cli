@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "jointplot penguins",
+            "name": "jointplot penguins --x=bill_length_mm --y=bill_depth_mm",
             "type": "debugpy",
             "request": "launch",
             "program": "sns.py",
@@ -16,6 +16,34 @@
                 "--x=bill_length_mm",
                 "--y=bill_depth_mm"
             ]
+        },
+        {
+            "name": "violinplot --data=titanic --x=class --y=age --hue=alive --fill=False",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "sns.py",
+            "console": "integratedTerminal",
+            "args": [
+                "violinplot",
+                "--data=titanic",
+                "--x=class",
+                "--y=age",
+                "--hue=alive",
+                "--fill=False"
+            ]
+        },
+        {
+            "name": "pairplot --data=iris --y-vars=petal_width",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "sns.py",
+            "console": "integratedTerminal",
+            "args": [
+                "pairplot",
+                "--data=iris",
+                "--y-vars=petal_width"
+            ],
+            "justMyCode": false
         },
         {
             "name": "pairplot Automobile.csv",
