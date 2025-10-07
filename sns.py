@@ -8,8 +8,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from matplotlib.colors import BASE_COLORS
 
 logger = logging.getLogger(__name__)
+
+data_help = "Built-in dataset: " + ", ".join(sns.get_dataset_names())
+palette_help = "matplotlib color: " + ", ".join(BASE_COLORS)
 
 
 def load_and_handle_data(data_name, save_data_as):
@@ -113,31 +117,31 @@ python sns.py violinplot --data=titanic --x=age --y=alive --bw-adjust=.5 --inner
 python sns.py violinplot --data=titanic --x=age --linewidth=1 --linecolor=k
 """
 )
-@click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
+@click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save dataset as.")
-@click.option("--x", required=True, help="Column name for the X-axis (Required).")
-@click.option("--y", help="Column name for the Y-axis (Required).")
+@click.option("--x", required=True, help="Column name for x (Required).")
+@click.option("--y", help="Column name for y")
 @click.option("--hue", help="Column name for color grouping.")
 # order
 # hue_order
-@click.option("--orient", type=click.Choice(["v", "h"]), help="Orientation of the plot (vertical or horizontal).")
+@click.option("--orient", type=click.Choice(["v", "h", "x", "y"]), help="Orientation of the plot")
 # color
-@click.option("--palette", help="Color palette to use.")
+@click.option("--palette", help=palette_help)
 # saturation
-@click.option("--fill", type=click.Choice(["True", "False", None]), default=None, help="Fill the violins.")
-@click.option("--inner", type=click.Choice(["box", "quart", "point", "stick", None]), default="box")
-@click.option("--split", type=click.Choice(["True", "False", ""]), default="", help="Split violins by hue.")
+@click.option("--fill", type=click.Choice(["True", "False"]), default=None, help="Fill the violins.")
+@click.option("--inner", type=click.Choice(["box", "quart", "point", "stick"]), default="box")
+@click.option("--split", type=click.Choice(["True", "False"]), default=None, help="Split violins by hue.")
 @click.option("--width", type=float, default=0.8, help="Width of a full element when not using hue nesting.")
 # dodge
 @click.option("--gap", type=float, default=None, help="Gap.")
 @click.option("--linewidth", type=float, help="Width of the lines that frame the plot elements.")
-@click.option("--linecolor", type=click.Choice(["auto", "k", None]), default=None, help="Smoothing bandwidth.")
+@click.option("--linecolor", type=click.Choice(["auto", "k"]), default=None, help="Smoothing bandwidth.")
 @click.option("--cut", type=float, default=2, help="Distance to extend the density past extreme datapoints.")
 @click.option("--gridsize", type=int, default=100, help="Number of points in the discrete grid (KDE).")
 @click.option("--bw-method", type=click.Choice(["scott", "silverman"]), default="scott", help="Smoothing bandwidth.")
 @click.option("--bw-adjust", type=float, default=1, help="Factor that scales the bandwidth.")
-@click.option("--density_norm", type=click.Choice(["area", "count", "width", None]), default="count")
+@click.option("--density_norm", type=click.Choice(["area", "count", "width"]), default=None)
 # common_norm
 # hue_norm
 # formatter
@@ -210,7 +214,7 @@ def violinplot(
 
 # https://seaborn.pydata.org/generated/seaborn.jointplot.html
 @cli.command()
-@click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
+@click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
 @click.option("--x", required=True, help="Column name for the X-axis (Required).")
@@ -221,7 +225,7 @@ def violinplot(
 @click.option("--ratio", type=int, default=5, help="Ratio of joint axes height to marginal axes height.")
 @click.option("--space", type=float, default=0.2, help="Space between the joint and marginal axes.")
 @click.option("--color", help="Single color for the plot elements.")
-@click.option("--palette", help="Color palette to use for the hue variable.")
+@click.option("--palette", help=palette_help)
 @click.option("--marginal-ticks/--no-marginal-ticks", default=False, help="Show ticks on the marginal axes.")
 def jointplot(data, output, save_data_as, x, y, hue, kind, height, ratio, space, color, palette, marginal_ticks):
     df = load_and_handle_data(data, save_data_as)
@@ -249,7 +253,7 @@ def jointplot(data, output, save_data_as, x, y, hue, kind, height, ratio, space,
 
 # https://seaborn.pydata.org/generated/seaborn.lmplot.html
 @cli.command()
-@click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
+@click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
 @click.option("--x", required=True, help="Column name for the X-axis (Required).")
@@ -290,7 +294,7 @@ def lmplot(data, output, save_data_as, x, y, hue, col, row, height, aspect, ci, 
 
 # https://seaborn.pydata.org/generated/seaborn.scatterplot.html
 @cli.command()
-@click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
+@click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as")
 @click.option("--x", required=True, help="Column name for the X-axis (Required).")
@@ -298,7 +302,7 @@ def lmplot(data, output, save_data_as, x, y, hue, col, row, height, aspect, ci, 
 @click.option("--hue", help="Column name for color grouping.")
 @click.option("--style", help="Column name for style grouping.")
 @click.option("--size", help="Column name for size grouping.")
-@click.option("--palette", help="Color palette to use.")
+@click.option("--palette", help=palette_help)
 @click.option("--hue-order", help="Order for the levels of the hue variable. Comma-separated.")
 @click.option("--hue-norm", help="Normalization in data units for the hue variable.")
 @click.option("--sizes", help="Min, max, or list of sizes for the size variable. Comma-separated.")
@@ -383,7 +387,7 @@ Examples:
     python sns.py stripplot -d tips --x total_bill --y day --hue time --orient h --jitter 0.2
 """
 )
-@click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
+@click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
 @click.option("--x", required=True, help="Column name for the X-axis (Required).")
@@ -414,7 +418,7 @@ def stripplot(data, output, save_data_as, x, y, hue, jitter, dodge, orient):
 
 # https://seaborn.pydata.org/generated/seaborn.swarmplot.html
 @cli.command()
-@click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
+@click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
 @click.option("--x", required=True, help="Column name for the X-axis (Required).")
@@ -443,7 +447,7 @@ def swarmplot(data, output, save_data_as, x, y, hue, dodge, orient):
 
 # https://seaborn.pydata.org/generated/seaborn.catplot.html
 @cli.command()
-@click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
+@click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save dataset as.")
 @click.option("--x", required=True, help="Column name for the X-axis (Required).")
@@ -452,7 +456,7 @@ def swarmplot(data, output, save_data_as, x, y, hue, dodge, orient):
 @click.option("--col", help="Column name to facet the plot across columns.")
 @click.option("--row", help="Column name to facet the plot across rows.")
 @click.option("--kind", type=click.Choice(["strip", "swarm", "box", "violin", "boxen", "point", "bar", "count"]))
-@click.option("--palette", help="Color palette to use.")
+@click.option("--palette", help=palette_help)
 @click.option("--order", help="Order to plot the categorical levels in. Comma-separated")
 @click.option("--hue-order", help="Order for the levels of the hue variable. Comma-separated.")
 @click.option("--orient", type=click.Choice(["v", "h"]), help="Orientation of the plot (vertical or horizontal).")
@@ -508,7 +512,7 @@ def catplot(
 
 # https://seaborn.pydata.org/generated/seaborn.pairplot.html
 @cli.command()
-@click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
+@click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
 @click.option("--hue", help="Column name for color grouping.")
@@ -526,7 +530,7 @@ def catplot(
     help="Kind of plot for the diagonal subplots.",
 )
 @click.option("--markers", help="Marker style or a list of markers. Comma-separated.")
-@click.option("--palette", help="Color palette to use.")
+@click.option("--palette", help=palette_help)
 @click.option("--height", type=float, default=2.5, help="Height (in inches) of each facet.")
 @click.option("--aspect", type=float, default=1, help="Aspect ratio of each facet, so aspect * height gives the width.")
 @click.option(
@@ -595,7 +599,7 @@ def pairplot(
 
 # https://seaborn.pydata.org/generated/seaborn.histplot.html
 @cli.command()
-@click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
+@click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
 @click.option("--x", help="Column name for the X-axis.")
@@ -625,7 +629,7 @@ def pairplot(
 @click.option("--log_scale", type=click.Choice([True, False, "x", "y"]), help="Set the scale of the axis to log.")
 @click.option("--cbar", type=bool, default=False, help="Whether to draw a colorbar.")
 @click.option("--cbar_kws", help="Dictionary of keyword arguments for `matplotlib.figure.Figure.colorbar`.")
-@click.option("--palette", help="Color palette to use.")
+@click.option("--palette", help=palette_help)
 @click.option("--hue_order", help="Order for the levels of the hue variable. Comma-separated.")
 @click.option("--hue_norm", help="Normalization in data units for the hue variable.")
 @click.option("--color", help="Single color for the plot elements.")
@@ -715,7 +719,7 @@ def histplot(
 
 # https://seaborn.pydata.org/generated/seaborn.displot.html
 @cli.command()
-@click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
+@click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
 @click.option("--x", help="Column name for the X-axis.")
@@ -729,7 +733,7 @@ def histplot(
 @click.option("--col-wrap", type=int, help="Wrap the column variable at this width.")
 @click.option("--row-order", help="Order for the levels of the row variable. Comma-separated.")
 @click.option("--col-order", help="Order for the levels of the col variable. Comma-separated.")
-@click.option("--palette", help="Color palette to use.")
+@click.option("--palette", help=palette_help)
 @click.option("--hue-order", help="Order for the levels of the hue variable. Comma-separated.")
 @click.option("--hue-norm", help="Normalization in data units for the hue variable.")
 @click.option("--color", help="Single color for the plot elements.")
@@ -808,7 +812,7 @@ def displot(
 
 # https://seaborn.pydata.org/generated/seaborn.boxplot.html
 @cli.command()
-@click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
+@click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
 @click.option("--x", help="Column name for the X-axis.")
@@ -818,7 +822,7 @@ def displot(
 @click.option("--hue-order", help="Order for the levels of the hue variable. Comma-separated.")
 @click.option("--orient", type=click.Choice(["v", "h"]), help="Orientation of the plot (vertical or horizontal).")
 @click.option("--color", help="Single color for the plot elements.")
-@click.option("--palette", help="Color palette to use.")
+@click.option("--palette", help=palette_help)
 @click.option("--saturation", type=float, default=1, help="Proportion of the original saturation to draw colors.")
 @click.option("--fill", type=bool, default=True, help="If True, use a solid patch. Otherwise, draw as line art.")
 @click.option(
@@ -929,7 +933,7 @@ def boxplot(
 
 # https://seaborn.pydata.org/generated/seaborn.countplot.html
 @cli.command()
-@click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
+@click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
 @click.option("--x", help="Column name for the X-axis.")
@@ -939,7 +943,7 @@ def boxplot(
 @click.option("--hue-order", help="Order for the levels of the hue variable. Comma-separated.")
 @click.option("--orient", type=click.Choice(["v", "h"]), help="Orientation of the plot (vertical or horizontal).")
 @click.option("--color", help="Single color for the plot elements.")
-@click.option("--palette", help="Color palette to use.")
+@click.option("--palette", help=palette_help)
 @click.option("--saturation", type=float, default=1, help="Proportion of the original saturation to draw colors.")
 @click.option("--fill", type=bool, default=True, help="If True, use a solid patch. Otherwise, draw as line art.")
 @click.option("--hue-norm", help="Normalization in data units for the hue variable.")
@@ -1038,7 +1042,7 @@ def countplot(
 
 # https://seaborn.pydata.org/generated/seaborn.lineplot.html
 @cli.command()
-@click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
+@click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
 @click.option("--x", required=True, help="Column name for the X-axis (Required).")
@@ -1048,7 +1052,7 @@ def countplot(
 @click.option("--style", help="Column name for style grouping.")
 @click.option("--units", help="Column name for units grouping.")
 @click.option("--weights", help="Data values or column used to compute weighted estimation.")
-@click.option("--palette", help="Color palette to use.")
+@click.option("--palette", help=palette_help)
 @click.option("--hue-order", help="Order for the levels of the hue variable. Comma-separated.")
 @click.option("--hue-norm", help="Normalization in data units for the hue variable.")
 @click.option("--sizes", help="Min, max, or list of sizes for the size variable. Comma-separated.")
@@ -1186,7 +1190,7 @@ def lineplot(
 
 # https://seaborn.pydata.org/generated/seaborn.relplot.html
 @cli.command()
-@click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
+@click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
 @click.option("--x", required=True, help="Column name for the X-axis (Required).")
@@ -1202,7 +1206,7 @@ def lineplot(
 @click.option("--col_wrap", type=int, help="Wrap the column variable at this width.")
 @click.option("--row-order", help="Order for the levels of the row variable. Comma-separated.")
 @click.option("--col-order", help="Order for the levels of the col variable. Comma-separated.")
-@click.option("--palette", help="Color palette to use.")
+@click.option("--palette", help=palette_help)
 @click.option("--hue-order", help="Order for the levels of the hue variable. Comma-separated.")
 @click.option("--hue-norm", help="Normalization in data units for the hue variable.")
 @click.option("--sizes", help="Min, max, or list of sizes for the size variable. Comma-separated.")
@@ -1311,7 +1315,7 @@ def relplot(
 
 # https://seaborn.pydata.org/generated/seaborn.heatmap.html
 @cli.command()
-@click.option("--data", "-d", required=True, help="Path to data file or name of a built-in Seaborn dataset.")
+@click.option("--data", "-d", required=True, help=data_help)
 @click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
 @click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
 @click.option("--x", help="Column name for the X-axis.")
