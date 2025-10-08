@@ -88,6 +88,201 @@ def cli():
     pass
 
 
+@cli.command(
+    help="""
+https://seaborn.pydata.org/generated/seaborn.boxplot.html
+
+Examples:
+
+sns boxplot --data=titanic --x=age
+
+sns boxplot --data=titanic --x=age --y=class
+
+sns boxplot --data=titanic --x=class --y=age --hue=alive
+
+sns boxplot --data=titanic --x=class --y=age --hue=alive --fill=False --gap=.1
+
+sns boxplot --data=titanic --x=age --y=deck --whis=0,100
+
+sns boxplot --data=titanic --x=age --y=deck --width=.5
+
+sns boxplot --data=titanic --x=age --y=deck --color=.8 --linecolor=#137 --linewidth=.75
+"""
+)
+@click.option("--data", "-d", required=True, help="Dataset name.")
+@click.option("--output", "-o", type=click.Path(), help="Save plot as PNG.")
+@click.option("--save-data-as", "-s", type=click.Path(), help="Export dataset.")
+@click.option("--x", help="X-axis column.")
+@click.option("--y", help="Y-axis column.")
+@click.option("--hue", help="Color grouping column.")
+@click.option("--order", help="Category order (comma-separated).")
+@click.option("--hue-order", help="Hue order (comma-separated).")
+@click.option("--orient", type=click.Choice(["v", "h"]), help="Plot orientation.")
+@click.option("--color", help="Single color.")
+@click.option("--palette", help="Color palette name.")
+@click.option("--saturation", type=float, default=1, help="Color saturation (0–1).")
+@click.option("--fill", type=bool, default=None, help="Fill shapes if True.")
+@click.option("--dodge", type=bool, default=True, help="Separate hue groups.")
+@click.option("--width", type=float, default=0.8, help="Element width.")
+@click.option("--gap", type=float, default=0, help="Gap between elements.")
+@click.option("--fliersize", type=float, default=5, help="Outlier marker size.")
+@click.option("--linewidth", type=float, help="Line width.")
+@click.option("--linecolor", help="Line color.")
+@click.option("--whis", type=str, default=None, help="Whisker range, e.g. 0,100")
+@click.option("--hue-norm", help="Hue normalization.")
+@click.option("--log-scale", type=click.Choice(["x", "y"]), help="Log scale axis.")
+@click.option("--native-scale", type=bool, default=False, help="Preserve axis scale.")
+@click.option("--formatter", help="Format category labels.")
+@click.option("--legend", type=click.Choice(["auto", "brief", "full", "False"]), default="auto", help="Legend style.")
+@click.option("--ax", help="Use existing axes.")
+def boxplot(
+    data,
+    output,
+    save_data_as,
+    x,
+    y,
+    hue,
+    order,
+    hue_order,
+    orient,
+    color,
+    palette,
+    saturation,
+    width,
+    fill,
+    whis,
+    dodge,
+    gap,
+    fliersize,
+    linewidth,
+    linecolor,
+    hue_norm,
+    log_scale,
+    native_scale,
+    formatter,
+    legend,
+    ax,
+):
+    df = load_and_handle_data(data, save_data_as)
+    # Convert comma-separated strings to lists if necessary
+    if order:
+        order = order.split(",")
+    if hue_order:
+        hue_order = hue_order.split(",")
+
+    plot_params = {
+        "x": x,
+        "y": y,
+        "hue": hue,
+        "order": order,
+        "hue_order": hue_order,
+        "orient": orient,
+        "color": color,
+        "palette": palette,
+        "saturation": saturation,
+        "width": width,
+        "fill": fill,
+        "dodge": dodge,
+        "gap": gap,
+        "fliersize": fliersize,
+        "linewidth": linewidth,
+        "linecolor": linecolor,
+        "whis": tuple(map(int, whis.split(","))) if whis else None,
+        "hue_norm": hue_norm,
+        "log_scale": log_scale,
+        "native_scale": native_scale,
+        "formatter": formatter,
+        "legend": legend,
+        "ax": ax,
+    }
+    plot_params = {k: v for k, v in plot_params.items() if v is not None}
+    param_str = ", ".join([f"{k}='{v}'" if isinstance(v, str) else f"{k}={v}" for k, v in plot_params.items()])
+    click.echo(f"sns.boxplot(data=df, {param_str})")
+
+    plt.figure()
+    sns.boxplot(data=df, **plot_params)
+    plt.title(f"Box Plot: {y} by {x}")
+    plt.tight_layout()
+    save_or_show_plot(output)
+
+
+@cli.command(
+    help="""https://seaborn.pydata.org/generated/seaborn.catplot.html
+
+Examples:
+
+sns catplot --data=titanic --x=age --y=class
+
+sns catplot --data=titanic --x=age --y=class --kind=box
+
+sns catplot --data=titanic --x=age --y=class --hue=sex --kind=boxen
+
+sns catplot --data=titanic --x=age --y=class --hue=sex --kind=violin --bw-adjust=.5 --cut=0 --split=True
+"""
+)
+@click.option("--data", "-d", required=True, help=data_help)
+@click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
+@click.option("--save-data-as", "-s", type=click.Path(), help="Save dataset as.")
+@click.option("--x", required=True, help="Column name for the X-axis (Required).")
+@click.option("--y", required=False, help="Column name for the Y-axis (Required).")
+@click.option("--hue", help="Column name for color grouping.")
+@click.option("--col", help="Column name to facet the plot across columns.")
+@click.option("--row", help="Column name to facet the plot across rows.")
+@click.option("--kind", type=click.Choice(["strip", "swarm", "box", "violin", "boxen", "point", "bar", "count"]))
+@click.option("--palette", help=palette_help)
+@click.option("--order", help="Order to plot the categorical levels in. Comma-separated")
+@click.option("--hue-order", help="Order for the levels of the hue variable. Comma-separated.")
+@click.option("--orient", type=click.Choice(["v", "h"]), help="Orientation of the plot (vertical or horizontal).")
+@click.option("--height", type=float, default=5, help="Height (in inches) of each facet.")
+@click.option("--aspect", type=float, default=1, help="Aspect ratio of each facet, so aspect * height gives the width.")
+@click.option("--col-wrap", type=int, help="Wrap the column variable at this width.")
+def catplot(
+    data,
+    output,
+    save_data_as,
+    x,
+    y,
+    hue,
+    col,
+    row,
+    kind,
+    palette,
+    order,
+    hue_order,
+    orient,
+    height,
+    aspect,
+    col_wrap,
+):
+    df = load_and_handle_data(data, save_data_as)
+    if order:
+        order = order.split(",")
+    if hue_order:
+        hue_order = hue_order.split(",")
+
+    plot_params = {
+        "x": x,
+        "y": y,
+        "hue": hue,
+        "col": col,
+        "row": row,
+        "kind": kind,
+        "palette": palette,
+        "order": order,
+        "hue_order": hue_order,
+        "orient": orient,
+        "height": height,
+        "aspect": aspect,
+        "col_wrap": col_wrap,
+    }
+    plot_params = {k: v for k, v in plot_params.items() if v is not None}
+    param_str = ", ".join([f"{k}='{v}'" if isinstance(v, str) else f"{k}={v}" for k, v in plot_params.items()])
+    click.echo(f"sns.catplot(data=df, {param_str})")
+
+    g = sns.catplot(data=df, **plot_params)
+    save_or_show_plot(output)
+
+
 # https://seaborn.pydata.org/generated/seaborn.violinplot.html
 @cli.command(
     help="""https://seaborn.pydata.org/generated/seaborn.violinplot.html
@@ -131,7 +326,7 @@ python sns.py violinplot --data=titanic --x=age --linewidth=1 --linecolor=k
 # color
 @click.option("--palette", help=palette_help)
 # saturation
-@click.option("--fill", type=click.Choice(["True", "False"]), default=None, help="Fill the violins.")
+@click.option("--fill", type=bool, default=None, help="Fill shapes if True.")
 @click.option("--inner", type=click.Choice(["box", "quart", "point", "stick"]), default="box")
 @click.option("--split", type=click.Choice(["True", "False"]), default=None, help="Split violins by hue.")
 @click.option("--width", type=float, default=0.8, help="Width of a full element when not using hue nesting.")
@@ -451,71 +646,6 @@ def swarmplot(data, output, save_data_as, x, y, hue, dodge, orient):
     save_or_show_plot(output)
 
 
-# https://seaborn.pydata.org/generated/seaborn.catplot.html
-@cli.command(help="""https://seaborn.pydata.org/generated/seaborn.catplot.html""")
-@click.option("--data", "-d", required=True, help=data_help)
-@click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
-@click.option("--save-data-as", "-s", type=click.Path(), help="Save dataset as.")
-@click.option("--x", required=True, help="Column name for the X-axis (Required).")
-@click.option("--y", required=False, help="Column name for the Y-axis (Required).")
-@click.option("--hue", help="Column name for color grouping.")
-@click.option("--col", help="Column name to facet the plot across columns.")
-@click.option("--row", help="Column name to facet the plot across rows.")
-@click.option("--kind", type=click.Choice(["strip", "swarm", "box", "violin", "boxen", "point", "bar", "count"]))
-@click.option("--palette", help=palette_help)
-@click.option("--order", help="Order to plot the categorical levels in. Comma-separated")
-@click.option("--hue-order", help="Order for the levels of the hue variable. Comma-separated.")
-@click.option("--orient", type=click.Choice(["v", "h"]), help="Orientation of the plot (vertical or horizontal).")
-@click.option("--height", type=float, default=5, help="Height (in inches) of each facet.")
-@click.option("--aspect", type=float, default=1, help="Aspect ratio of each facet, so aspect * height gives the width.")
-@click.option("--col-wrap", type=int, help="Wrap the column variable at this width.")
-def catplot(
-    data,
-    output,
-    save_data_as,
-    x,
-    y,
-    hue,
-    col,
-    row,
-    kind,
-    palette,
-    order,
-    hue_order,
-    orient,
-    height,
-    aspect,
-    col_wrap,
-):
-    df = load_and_handle_data(data, save_data_as)
-    if order:
-        order = order.split(",")
-    if hue_order:
-        hue_order = hue_order.split(",")
-
-    plot_params = {
-        "x": x,
-        "y": y,
-        "hue": hue,
-        "col": col,
-        "row": row,
-        "kind": kind,
-        "palette": palette,
-        "order": order,
-        "hue_order": hue_order,
-        "orient": orient,
-        "height": height,
-        "aspect": aspect,
-        "col_wrap": col_wrap,
-    }
-    plot_params = {k: v for k, v in plot_params.items() if v is not None}
-    param_str = ", ".join([f"{k}='{v}'" if isinstance(v, str) else f"{k}={v}" for k, v in plot_params.items()])
-    click.echo(f"sns.catplot(data=df, {param_str})")
-
-    g = sns.catplot(data=df, **plot_params)
-    save_or_show_plot(output)
-
-
 # https://seaborn.pydata.org/generated/seaborn.pairplot.html
 @cli.command(help="""https://seaborn.pydata.org/generated/seaborn.pairplot.html""")
 @click.option("--data", "-d", required=True, help=data_help)
@@ -627,7 +757,7 @@ def pairplot(
 )
 @click.option("--multiple", type=click.Choice(["layer", "dodge", "stack", "fill"]), default="layer")
 @click.option("--element", type=click.Choice(["bars", "step", "poly"]), default="bars")
-@click.option("--fill", type=bool, default=True, help="Whether to fill the bars or lines of the histogram.")
+@click.option("--fill", type=bool, default=None, help="Fill shapes if True.")
 @click.option("--shrink", type=float, default=1, help="Scale the width of the bars relative to the bin width.")
 @click.option("--kde/--no-kde", default=False, help="Whether to plot a kernel density estimate.")
 @click.option("--kde_kws", help="Dictionary of keyword arguments for `kdeplot`.")
@@ -816,127 +946,6 @@ def displot(
     save_or_show_plot(output)
 
 
-# https://seaborn.pydata.org/generated/seaborn.boxplot.html
-@cli.command(help="""https://seaborn.pydata.org/generated/seaborn.boxplot.html""")
-@click.option("--data", "-d", required=True, help=data_help)
-@click.option("--output", "-o", type=click.Path(), help="Path to output PNG. If omitted, the plot is on screen.")
-@click.option("--save-data-as", "-s", type=click.Path(), help="Save data as.")
-@click.option("--x", help="Column name for the X-axis.")
-@click.option("--y", help="Column name for the Y-axis.")
-@click.option("--hue", help="Column name for color grouping.")
-@click.option("--order", help="Order to plot the categorical levels in. Comma-separated")
-@click.option("--hue-order", help="Order for the levels of the hue variable. Comma-separated.")
-@click.option("--orient", type=click.Choice(["v", "h"]), help="Orientation of the plot (vertical or horizontal).")
-@click.option("--color", help="Single color for the plot elements.")
-@click.option("--palette", help=palette_help)
-@click.option("--saturation", type=float, default=1, help="Proportion of the original saturation to draw colors.")
-@click.option("--fill", type=bool, default=True, help="If True, use a solid patch. Otherwise, draw as line art.")
-@click.option(
-    "--dodge",
-    type=bool,
-    default=True,
-    help="When hue mapping is used, whether elements should be shifted along the orient axis to eliminate overlap.",
-)
-@click.option("--width", type=float, default=0.8, help="Width of a full element when not using hue nesting.")
-@click.option(
-    "--gap",
-    type=float,
-    default=0,
-    help="Shrink on the orient axis by this factor to add a gap between dodged elements.",
-)
-@click.option("--fliersize", type=float, default=5, help="Size of the markers used to indicate outlier observations.")
-@click.option("--linewidth", type=float, help="Width of the lines that frame the plot elements.")
-@click.option("--linecolor", help="Color to use for line elements, when `fill` is True.")
-@click.option(
-    "--whis",
-    type=float,
-    default=1.5,
-    help="Proportion of the IQR past the low and high quartiles to extend the whiskers.",
-)
-@click.option("--hue-norm", help="Normalization in data units for the hue variable.")
-@click.option("--log-scale", type=click.Choice(["x", "y"]), help="Set axis scale(s) to log.")
-@click.option(
-    "--native-scale",
-    type=bool,
-    default=False,
-    help="When True, numeric or datetime values on the categorical axis will maintain their original scaling.",
-)
-@click.option("--formatter", help="Function for converting categorical data into strings.")
-@click.option(
-    "--legend", type=click.Choice(["auto", "brief", "full", "False"]), default="auto", help="How to draw the legend."
-)
-@click.option("--ax", help="Pre-existing axes for the plot.")
-def boxplot(
-    data,
-    output,
-    save_data_as,
-    x,
-    y,
-    hue,
-    order,
-    hue_order,
-    orient,
-    color,
-    palette,
-    saturation,
-    width,
-    fill,
-    dodge,
-    gap,
-    fliersize,
-    linewidth,
-    linecolor,
-    whis,
-    hue_norm,
-    log_scale,
-    native_scale,
-    formatter,
-    legend,
-    ax,
-):
-    df = load_and_handle_data(data, save_data_as)
-    # Convert comma-separated strings to lists if necessary
-    if order:
-        order = order.split(",")
-    if hue_order:
-        hue_order = hue_order.split(",")
-
-    plot_params = {
-        "x": x,
-        "y": y,
-        "hue": hue,
-        "order": order,
-        "hue_order": hue_order,
-        "orient": orient,
-        "color": color,
-        "palette": palette,
-        "saturation": saturation,
-        "width": width,
-        "fill": fill,
-        "dodge": dodge,
-        "gap": gap,
-        "fliersize": fliersize,
-        "linewidth": linewidth,
-        "linecolor": linecolor,
-        "whis": whis,
-        "hue_norm": hue_norm,
-        "log_scale": log_scale,
-        "native_scale": native_scale,
-        "formatter": formatter,
-        "legend": legend,
-        "ax": ax,
-    }
-    plot_params = {k: v for k, v in plot_params.items() if v is not None}
-    param_str = ", ".join([f"{k}='{v}'" if isinstance(v, str) else f"{k}={v}" for k, v in plot_params.items()])
-    click.echo(f"sns.boxplot(data=df, {param_str})")
-
-    plt.figure()
-    sns.boxplot(data=df, **plot_params)
-    plt.title(f"Box Plot: {y} by {x}")
-    plt.tight_layout()
-    save_or_show_plot(output)
-
-
 # https://seaborn.pydata.org/generated/seaborn.countplot.html
 @cli.command(help="""https://seaborn.pydata.org/generated/seaborn.countplot.html""")
 @click.option("--data", "-d", required=True, help=data_help)
@@ -951,7 +960,7 @@ def boxplot(
 @click.option("--color", help="Single color for the plot elements.")
 @click.option("--palette", help=palette_help)
 @click.option("--saturation", type=float, default=1, help="Proportion of the original saturation to draw colors.")
-@click.option("--fill", type=bool, default=True, help="If True, use a solid patch. Otherwise, draw as line art.")
+@click.option("--fill", type=bool, default=None, help="Fill shapes if True.")
 @click.option("--hue-norm", help="Normalization in data units for the hue variable.")
 @click.option(
     "--stat",
