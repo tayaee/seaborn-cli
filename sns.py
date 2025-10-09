@@ -164,7 +164,6 @@ def boxplot(
     ax,
 ):
     df = load_and_handle_data(data, save_data_as)
-    # Convert comma-separated strings to lists if necessary
     if order:
         order = order.split(",")
     if hue_order:
@@ -218,6 +217,8 @@ sns catplot --data=titanic --x=age --y=class --kind=box
 sns catplot --data=titanic --x=age --y=class --hue=sex --kind=boxen
 
 sns catplot --data=titanic --x=age --y=class --hue=sex --kind=violin --bw-adjust=.5 --cut=0 --split=True
+
+sns catplot --data=titanic --x=class --y=survived --col=sex --kind=bar --height=4 --aspect=.6
 """
 )
 @click.option("--data", "-d", required=True, help=data_help)
@@ -235,6 +236,10 @@ sns catplot --data=titanic --x=age --y=class --hue=sex --kind=violin --bw-adjust
 @click.option("--orient", type=click.Choice(["v", "h"]), help="Orientation of the plot (vertical or horizontal).")
 @click.option("--height", type=float, default=5, help="Height (in inches) of each facet.")
 @click.option("--aspect", type=float, default=1, help="Aspect ratio of each facet, so aspect * height gives the width.")
+@click.option("--bw-adjust", type=float, default=None)
+@click.option("--cut", type=float, default=None)
+@click.option("--color", type=float, default=None)
+@click.option("--split", type=bool, default=None)
 @click.option("--col-wrap", type=int, help="Wrap the column variable at this width.")
 def catplot(
     data,
@@ -252,6 +257,10 @@ def catplot(
     orient,
     height,
     aspect,
+    bw_adjust,
+    cut,
+    color,
+    split,
     col_wrap,
 ):
     df = load_and_handle_data(data, save_data_as)
@@ -273,6 +282,10 @@ def catplot(
         "orient": orient,
         "height": height,
         "aspect": aspect,
+        "bw_adjust": bw_adjust,
+        "cut": cut,
+        "color": color,
+        "split": split,
         "col_wrap": col_wrap,
     }
     plot_params = {k: v for k, v in plot_params.items() if v is not None}
