@@ -302,29 +302,29 @@ def catplot(
 
 Examples:
 
-python sns.py violinplot --data=titanic --x=age
+sns violinplot --data=titanic --x=age
 
-python sns.py violinplot --data=titanic --x=age --y=class
+sns violinplot --data=titanic --x=age --y=class
 
-python sns.py violinplot --data=titanic --x=class --y=age --hue=alive
+sns violinplot --data=titanic --x=class --y=age --hue=alive
 
-python sns.py violinplot --data=titanic --x=class --y=age --hue=alive --fill=False
+sns violinplot --data=titanic --x=class --y=age --hue=alive --fill=False
 
-python sns.py violinplot --data=titanic --x=class --y=age --hue=alive --split=True --inner=quart
+sns violinplot --data=titanic --x=class --y=age --hue=alive --split=True --inner=quart
 
-python sns.py violinplot --data=titanic --x=class --y=age --hue=alive --split=True --gap=0.1 --inner=quart
+sns violinplot --data=titanic --x=class --y=age --hue=alive --split=True --gap=0.1 --inner=quart
 
-python sns.py violinplot --data=titanic --x=class --y=age --split=True --inner=quart
+sns violinplot --data=titanic --x=class --y=age --split=True --inner=quart
 
-python sns.py violinplot --data=titanic --x=age --y=deck --inner=point
+sns violinplot --data=titanic --x=age --y=deck --inner=point
 
-python sns.py violinplot --data=titanic --x=age --y=deck --inner=point --density_norm=count
+sns violinplot --data=titanic --x=age --y=deck --inner=point --density_norm=count
 
-python sns.py violinplot --data=titanic --x=age --y=alive --cut=0 --inner=stick
+sns violinplot --data=titanic --x=age --y=alive --cut=0 --inner=stick
 
-python sns.py violinplot --data=titanic --x=age --y=alive --bw-adjust=.5 --inner=stick
+sns violinplot --data=titanic --x=age --y=alive --bw-adjust=.5 --inner=stick
 
-python sns.py violinplot --data=titanic --x=age --linewidth=1 --linecolor=k
+sns violinplot --data=titanic --x=age --linewidth=1 --linecolor=k
 """
 )
 @click.option("--data", "-d", required=True, help=data_help)
@@ -596,9 +596,9 @@ def scatterplot(
 
 Examples:
 
-    python sns.py stripplot -d iris --x species --y petal_length
+    sns stripplot -d iris --x species --y petal_length
 
-    python sns.py stripplot -d tips --x total_bill --y day --hue time --orient h --jitter 0.2
+    sns stripplot -d tips --x total_bill --y day --hue time --orient h --jitter 0.2
 """
 )
 @click.option("--data", "-d", required=True, help=data_help)
